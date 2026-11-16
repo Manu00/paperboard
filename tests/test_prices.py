@@ -111,3 +111,17 @@ async def test_hacs_nordpool_with_config_entry_reads_attributes(hass) -> None:
     provider = PriceProvider(hass, "sensor.hacs_se3")
     await provider.async_refresh()  # no core service registered: must not be needed
     assert len(provider.series().points) == 96
+
+
+def test_cheapest_window_stays_inside_the_chart() -> None:
+    """2026-11-16 17:54: tomorrow's 22-00 was the cheapest pair, past the 24 h axis; the
+    bracket then had no bar under it, price_chart raised and the whole timeline vanished."""
+    day = dt.datetime(2026, 11, 16, tzinfo=TZ)
+    rows = [{"start": (day + dt.timedelta(hours=h)).isoformat(),
+             "end": (day + dt.timedelta(hours=h + 1)).isoformat(),
+             "value": 1.0 if h >= 46 else 3.0} for h in range(48)]
+    series = from_state({"state": "3.0", "attributes": {"raw_today": rows}}, day)
+    now = day.replace(hour=17)
+    assert series.cheapest_window(2, now)[0].hour == 22  # unbounded: tomorrow 22:00
+    start, _ = series.cheapest_window(2, now, now + dt.timedelta(hours=24))
+    assert start + dt.timedelta(hours=2) <= now + dt.timedelta(hours=24)

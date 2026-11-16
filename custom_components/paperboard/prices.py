@@ -34,9 +34,12 @@ class PriceSeries:
         return [PricePoint(h, h + dt.timedelta(hours=1), sum(v) / len(v))
                 for h, v in sorted(buckets.items())]
 
-    def cheapest_window(self, hours: int, after: dt.datetime) -> tuple[dt.datetime, float] | None:
-        """Start and mean price of the cheapest run of `hours` whole hours from `after` on."""
-        hourly = [p for p in self.hourly() if p.end > after]
+    def cheapest_window(self, hours: int, after: dt.datetime,
+                        before: dt.datetime | None = None) -> tuple[dt.datetime, float] | None:
+        """Start and mean price of the cheapest run of `hours` whole hours from `after` on,
+        ending by `before` when given (a chart passes its axis end, so the window is drawn)."""
+        hourly = [p for p in self.hourly()
+                  if p.end > after and (before is None or p.end <= before)]
         best: tuple[dt.datetime, float] | None = None
         for i in range(len(hourly) - hours + 1):
             run = hourly[i:i + hours]

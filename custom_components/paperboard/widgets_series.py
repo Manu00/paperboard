@@ -47,7 +47,8 @@ def price_chart(svg: Svg, r: Rect, snap: Snapshot, measure: Measurer, theme: The
     def y(v: float) -> float:
         return bottom - (v - lo) * scale
 
-    best = series.cheapest_window(cheapest_hours, axis.start) if cheapest_hours else None
+    best = (series.cheapest_window(cheapest_hours, axis.start, axis.end)
+            if cheapest_hours else None)
     cheap = set()
     if best:
         cheap = {best[0] + dt.timedelta(hours=i) for i in range(cheapest_hours)}
