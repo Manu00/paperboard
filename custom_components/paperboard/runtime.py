@@ -56,10 +56,14 @@ class ScreenRuntime:
             self._bmp = (self.frame.sha, encode_bmp_1bit(self.frame.png))
         return self._bmp[1]
 
-    def set_frame(self, frame: Frame) -> bool:
-        """Store a new good frame; True when the image actually changed."""
+    def set_frame(self, frame: Frame, problems: list[str] | None = None) -> bool:
+        """Store a new good frame; True when the image actually changed.
+
+        `problems` are sections that failed and were left out of the image: the frame is
+        served, and they show as the render error so a missing section is never silent."""
         changed = self.frame is None or frame.sha != self.frame.sha
-        self.frame, self.stale, self.last_error = frame, False, None
+        self.frame, self.stale = frame, False
+        self.last_error = "; ".join(problems) if problems else None
         self.frame_time = dt.datetime.now(dt.UTC)
         return changed
 

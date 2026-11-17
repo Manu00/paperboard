@@ -23,6 +23,7 @@ from homeassistant.helpers.template import Template
 from homeassistant.util import dt as dt_util
 
 from . import i18n
+from .compose import collect_notes
 from .const import SIGNAL_CHECKIN, SIGNAL_FRAME
 from .fmt import to_float
 from .fonts import FontRegistry
@@ -61,6 +62,7 @@ class ScreenRenderer:
         self.last_render_ms: float | None = None
         self.max_render_ms = 0.0
         self._warned_slow = False
+        self._warned_problems: list[str] = []
         self._debouncer = Debouncer(hass, _LOGGER, cooldown=DEBOUNCE_SECONDS, immediate=False,
                                     function=self.async_render)
         self._unsubs: list[Any] = []
@@ -227,7 +229,7 @@ class ScreenRenderer:
             return
         started = time.perf_counter()
         try:
-            frame = await self.hass.async_add_executor_job(
+            frame, problems = await self.hass.async_add_executor_job(
                 self._draw, snap, self.active_layout(snap.now))
         except PipelineError as err:
             self.screen.render_failed(str(err))
@@ -248,12 +250,17 @@ class ScreenRenderer:
             self._warned_slow = True
             _LOGGER.warning("Rendering %s took %.0f ms (budget %d ms)", self.screen.name,
                             self.last_render_ms, SLOW_RENDER_MS)
-        had_error = self.screen.last_error is not None
-        if self.screen.set_frame(frame) or had_error:
+        if problems and problems != self._warned_problems:
+            _LOGGER.warning("%s: left out of the image: %s", self.screen.name, "; ".join(problems))
+        self._warned_problems = problems
+        before = self.screen.last_error
+        if self.screen.set_frame(frame, problems) or self.screen.last_error != before:
             async_dispatcher_send(self.hass, SIGNAL_FRAME.format(self.screen.subentry_id))
 
     def _draw(self, snap: Snapshot, layout: Layout):  # runs in the executor
-        return render(layout.build(snap, self._measurer), self.profile, self.fonts.font_dir)
+        with collect_notes() as problems:
+            svg = layout.build(snap, self._measurer)
+        return render(svg, self.profile, self.fonts.font_dir), problems
 
 
 def to_int(value: object) -> int | None:

@@ -78,3 +78,44 @@ async def test_render_timing_recorded(hass: HomeAssistant, probe_layout, hub_ent
     assert renderer.last_render_ms is not None
     assert 0 < renderer.last_render_ms < 500
     assert renderer.max_render_ms >= renderer.last_render_ms
+
+
+def _boom(svg, rect, snap, measure, theme, options) -> bool:
+    if snap.states.get("sensor.probe", {}).get("state") == "explode":
+        raise ValueError("chart bug")
+    return True
+
+
+@pytest.fixture
+def boom_layout(monkeypatch: pytest.MonkeyPatch) -> None:
+    """A YAML layout with a header and one widget that fails on demand."""
+    from dataclasses import replace
+
+    from custom_components.paperboard import compose
+    from custom_components.paperboard.layout_file import parse
+
+    monkeypatch.setitem(compose.REGISTRY, "stat", _boom)
+    spec = parse("name: x\nlang: en\ngrid: {columns: [fr], rows: [fr, fr], areas: [a, b]}\n"
+                 "widgets: [{type: header, area: a, options: {badge: none}},"
+                 " {type: stat, area: b}]\n", "x")
+    monkeypatch.setitem(layouts.LAYOUTS, "status",
+                        replace(compose.as_layout(spec), entities=("sensor.probe",),
+                                clock_resolution=3600))
+
+
+async def test_a_failed_section_shows_as_render_error(hass: HomeAssistant, boom_layout,
+                                                      hub_entry, caplog) -> None:
+    """2026-11-16: the timeline crashed, the screen lost half its content, and the render
+    error sensor said "none". A section left out of the image is now reported."""
+    screen = hub_entry.runtime_data.screens["screen1"]
+    assert screen.last_error is None
+    hass.states.async_set("sensor.probe", "explode")
+    async_fire_time_changed(hass, dt_util.utcnow() + timedelta(seconds=6))
+    await _settle(hass)
+    assert screen.frame is not None and screen.stale is False  # the rest is still served
+    assert "stat: ValueError: chart bug" in screen.last_error
+    assert caplog.text.count("left out of the image") == 1
+    hass.states.async_set("sensor.probe", "fine")
+    async_fire_time_changed(hass, dt_util.utcnow() + timedelta(seconds=12))
+    await _settle(hass)
+    assert screen.last_error is None

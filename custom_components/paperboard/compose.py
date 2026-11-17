@@ -1,15 +1,18 @@
 """YAML layout -> rendered SVG: grid areas, widget registry, collapse/reflow, shared axes.
 
-Every widget call is isolated: an exception inside one widget is logged into the snapshot's
-render notes and treated as 'empty' (the area collapses), so one broken section can never
-blank the screen. Widgets in the same area share it top-to-bottom in list order.
+Every widget call is isolated: an exception inside one widget is recorded as a render note and
+treated as 'empty' (the area collapses), so one broken section can never blank the screen. The
+renderer collects the notes (collect_notes) and shows them on the screen's render error sensor,
+so a missing section is never silent. Widgets in the same area share it top-to-bottom in list order.
 """
 
 from __future__ import annotations
 
 import datetime as dt
 import logging
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
+from contextlib import contextmanager
+from contextvars import ContextVar
 from dataclasses import replace
 from typing import Any
 
@@ -26,6 +29,18 @@ from .widgets import Rect
 _LOGGER = logging.getLogger(__name__)
 WidgetFn = Callable[[Svg, Rect, Snapshot, Measurer, Theme, dict[str, Any]], bool]
 REGISTRY: dict[str, WidgetFn] = {}
+_COLLECTOR: ContextVar[list[str] | None] = ContextVar("paperboard_notes", default=None)
+
+
+@contextmanager
+def collect_notes() -> Iterator[list[str]]:
+    """Gather the notes of every render_spec inside the block (widgets that failed)."""
+    notes: list[str] = []
+    token = _COLLECTOR.set(notes)
+    try:
+        yield notes
+    finally:
+        _COLLECTOR.reset(token)
 
 
 def widget(name: str) -> Callable[[WidgetFn], WidgetFn]:
@@ -55,7 +70,9 @@ def _draw(fn: WidgetFn, rect: Rect, snap: Snapshot, measure: Measurer, theme: Th
 
 def render_spec(spec: LayoutSpec, snap: Snapshot, measure: Measurer, theme: Theme,
                 notes: list[str] | None = None) -> str:
-    notes = notes if notes is not None else []
+    if notes is None:
+        notes = _COLLECTOR.get()
+        notes = notes if notes is not None else []
     if spec.lang != "auto" and snap.lang != (pinned := i18n.resolve(spec.lang)):
         snap = replace(snap, lang=pinned)  # a layout may pin its language
     g = spec.grid
