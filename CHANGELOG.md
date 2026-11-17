@@ -6,6 +6,15 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-11-17
+
+### Fixed
+- The price chart no longer crashes when the cheapest hours fall after the end of the chart
+  (for example tomorrow evening, once tomorrow's prices are known). The crash removed the
+  whole solar and price section from the screen.
+- A section that fails to draw is no longer silent: the screen's render error sensor names it
+  and the error, and it is logged once as a warning. The rest of the screen is still shown.
+
 ## [0.2.0] - 2026-11-09
 
 British English by default, Swedish optional, more languages by contribution. Paperboard is
@@ -97,7 +106,8 @@ First public version.
   actually given to the device, so night schedules no longer trigger it.
 - Widget spacing scales on large panels such as the TRMNL X.
 
-[Unreleased]: https://github.com/the-louie/paperboard/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/the-louie/paperboard/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/the-louie/paperboard/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/the-louie/paperboard/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/the-louie/paperboard/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/the-louie/paperboard/releases/tag/v0.1.0
