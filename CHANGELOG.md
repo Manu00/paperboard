@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.2.2] - 2026-11-21
+
 ### Changed
 - The "now" section lists "feels like" first and the second temperature (the indoor
   temperature setting) after it. A layout can still set its own order with `rows`.
@@ -110,7 +112,8 @@ First public version.
   actually given to the device, so night schedules no longer trigger it.
 - Widget spacing scales on large panels such as the TRMNL X.
 
-[Unreleased]: https://github.com/the-louie/paperboard/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/the-louie/paperboard/compare/v0.2.2...HEAD
+[0.2.2]: https://github.com/the-louie/paperboard/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/the-louie/paperboard/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/the-louie/paperboard/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/the-louie/paperboard/compare/v0.1.0...v0.1.1
