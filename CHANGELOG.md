@@ -6,6 +6,10 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+- The "now" section lists "feels like" first and the second temperature (the indoor
+  temperature setting) after it. A layout can still set its own order with `rows`.
+
 ## [0.2.1] - 2026-11-17
 
 ### Fixed

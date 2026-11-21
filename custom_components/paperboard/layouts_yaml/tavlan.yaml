@@ -19,7 +19,7 @@ widgets:
   - type: now
     area: now
     height: 300
-    options: {rows: [indoor, feels_like, humidity, wind, rain_today]}
+    options: {rows: [feels_like, indoor, humidity, wind, rain_today]}
   - type: energy
     area: now
     options: {rows: [price_now, solar_expected_today, battery]}
