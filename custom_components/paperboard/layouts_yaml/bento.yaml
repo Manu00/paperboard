@@ -16,7 +16,7 @@ grid:
   frames: {hero: inverted, hour: rounded, tom: rounded, el: rounded, en: rounded,
            sky: rounded, rooms: rounded, cal: rounded, days: rounded}
 widgets:
-  - {type: now, area: hero, options: {rows: [indoor, feels_like, humidity, rain_today]}}
+  - {type: now, area: hero, options: {rows: [feels_like, indoor, humidity, rain_today]}}
   - {type: hourly_strip, area: hour, options: {hours: 12}}
   - {type: tomorrow, area: tom, options: {hour: 7}}
   - type: timeline

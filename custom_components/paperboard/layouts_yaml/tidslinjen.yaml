@@ -21,7 +21,7 @@ widgets:
     area: now
     collapse: right
     options:
-      rows: [indoor, feels_like, humidity, wind, rain_today]
+      rows: [feels_like, indoor, humidity, wind, rain_today]
   - type: timeline
     area: timeline
     collapse: left

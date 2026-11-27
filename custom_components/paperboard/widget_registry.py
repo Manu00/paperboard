@@ -187,7 +187,7 @@ def _now(svg: Svg, r: Rect, snap: Snapshot, m: Measurer, t: Theme, o: dict) -> b
         values["wind"] = (f"{fmt.number(speed, 1, lang)}"
                           + (f" ({fmt.number(gust, 1, lang)})" if gust is not None else "")
                           + " m/s")
-    wanted = o.get("rows", ["indoor", "feels_like", "humidity", "wind", "rain_today"])
+    wanted = o.get("rows", ["feels_like", "indoor", "humidity", "wind", "rain_today"])
     rows = [(indoor_label if k == "indoor" else i18n.group(lang, "now_rows").get(k, k), values[k])
             for k in wanted if values.get(k) not in (None, fmt.MISSING)]
     if temp is None and weather_state is None and not rows:

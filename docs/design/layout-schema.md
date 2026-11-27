@@ -80,7 +80,7 @@ language for your own layouts (`title: {en: Weather, sv: Vädret}`, English as t
 | Type | Roles read | Key options |
 |---|---|---|
 | `header` | `calendars[]` (holiday names), `weather` (tomorrow 07) | `style: line \| masthead \| titlebar`, `title`, `show_week`, `show_flag`, `badge: tomorrow_07 \| none` |
-| `now` | `weather`, `outdoor_temp`, `indoor_temp`, `outdoor_humidity`, `wind`, `rain_today` | `rows: [indoor, feels_like, humidity, wind, dew_point, pressure, rain_today]` |
+| `now` | `weather`, `outdoor_temp`, `indoor_temp`, `outdoor_humidity`, `wind`, `rain_today` | `rows: [feels_like, indoor, humidity, wind, dew_point, pressure, rain_today]` |
 | `timeline` | `price`, `solar_forecast`, `weather` (hourly temperature) | `hours: 24`, `series: [solar_forecast, price, temperature]` (stacked in this order, one shared x-axis), `cheapest_hours: 2`, `night: dots \| none` |
 | `hourly_table` | `weather`, `price` | `hours: 10`, `columns: [icon, temp, rain, wind, price]` |
 | `daily` | `weather` | `days: 6`, `warn_gust_ms: 14`, `warn_rain_mm: 10` (a day over a threshold is inverted, and only then shows wind/rain) |
@@ -132,7 +132,7 @@ widgets:
   - {type: header, area: header, options: {show_week: true, show_flag: true, badge: tomorrow_07}}
   - type: now
     area: now
-    options: {rows: [indoor, feels_like, humidity, wind, rain_today]}   # no pressure (owner)
+    options: {rows: [feels_like, indoor, humidity, wind, rain_today]}   # no pressure (owner)
   - type: timeline
     area: timeline
     options: {hours: 24, series: [solar_forecast, price], cheapest_hours: 2, night: dots}
@@ -158,7 +158,7 @@ grid:
 widgets:
   - type: now
     area: now
-    options: {style: inverted, rows: [indoor, feels_like, humidity, wind, pressure, rain_today]}
+    options: {style: inverted, rows: [feels_like, indoor, humidity, wind, pressure, rain_today]}
   - {type: hourly_table, area: table, options: {hours: 10, then_days: 5}}
   - type: energy
     area: now
